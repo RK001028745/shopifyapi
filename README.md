@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 
 # first
@@ -29,3 +30,6 @@ npm run dev
 ```sh
 npm run build
 ```
+=======
+# shopifyapi
+>>>>>>> f7dea3159ef4b151224656fb06098c2e8f5fb5f5
