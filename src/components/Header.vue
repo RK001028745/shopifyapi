@@ -1,49 +1,55 @@
 <template>
-  <v-app-bar  class="py-2" :elevation="2" app>
+  <div class="head py-2 flex" :elevation="1" app>
     <v-avatar size="90">
       <router-link to="/">
-      <v-img src="src\assests\logo.png"  height="63px" width="100px" class="ml-3"></v-img>
-    </router-link>
+        <v-img src="src\assests\logo.png" height="63px" width="100px" class="ml-3"></v-img>
+      </router-link>
     </v-avatar>
-   
-   <v-toolbar-title class="text-center mr-3" style="max-width: 100px;">E-Shop</v-toolbar-title>
- 
-   
- 
-    <SearchBar @search="handleSearch" class="mr-12" style="max-width: 800px; max-height: 50px;" />
- 
-    <v-btn to="/" text size="large">Home</v-btn>
-    <v-btn to="/shop" text size="large">Shop</v-btn>
-    <v-btn icon to="/wishlist" text size="large">
-      <v-badge :content="wishlistCount" :value="wishlistCount" color="red" overlap>
-        <v-icon size="x-large">mdi-heart</v-icon>
+
+    <v-btn variant="text" to="/" text size="large">Home</v-btn>
+
+    <v-btn variant="text" class="custom-btn h-full" to="/shop" text size="large">Shop</v-btn>
+
+    <v-btn variant="text" icon @click="toggleCartDrawer" size="large">
+      <v-badge :content="totalItems" color="red" overlap>
+        <v-icon icon="mdi-shopping-outline" size="x-large"></v-icon>
       </v-badge>
     </v-btn>
- 
-    <v-btn icon to="/cart" size="large" class="mr-3">
-      <v-badge :content="totalItems" color="red">
-        <v-icon icon="mdi-cart" size="x-large"></v-icon>
-      </v-badge>
-    </v-btn>
-  </v-app-bar>
+
+    <v-btn variant="text" size="large" to="/cart">Cart</v-btn>
+  </div>
+
+  <CartDrawer :isOpen="isCartDrawerOpen" @update:isOpen="isCartDrawerOpen = $event" />
 </template>
- 
+
 <script setup>
 import { useCartStore } from '@/store/cartStore';
-import { useSearchStore } from '@/store/searchStore';
-import { computed } from 'vue';
-import SearchBar from '@/components/SearchBar.vue';
-import { useWishlistStore } from '@/store/wishlistStore';
- 
+import { computed, ref } from 'vue';
+import CartDrawer from '@/components/CartDrawer.vue';
+
 const cartStore = useCartStore();
-const searchStore = useSearchStore();
- 
+
 const totalItems = computed(() => cartStore.totalItems);
- 
-const wishlistStore = useWishlistStore();
-const wishlistCount = computed(() => wishlistStore.getWishlistItemCount);
- 
-const handleSearch = (query) => {
-  searchStore.setQuery(query);
+
+const isCartDrawerOpen = ref(false);
+
+const toggleCartDrawer = () => {
+  isCartDrawerOpen.value = !isCartDrawerOpen.value;
 };
 </script>
+
+<style scoped>
+.head {
+  background-color: white;
+
+  align-items: center;
+  max-height: 80px;
+  top: 0;
+  box-shadow: 0 1px;
+
+}
+
+.custon-btn {
+  min-height: 100%;
+}
+</style>

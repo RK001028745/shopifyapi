@@ -16,7 +16,7 @@
               </template>
               <v-list-item-title class="text-h6 mb-1">{{ item.title }}</v-list-item-title>
               <v-list-item-subtitle class="font-weight-bold ">${{ item.price }}</v-list-item-subtitle>
-              
+
               <template v-slot:append>
                 <v-row align="center" no-gutters>
                   <v-btn icon @click="decreaseQuantity(item)" class="mr-2" size="small">
@@ -49,7 +49,7 @@
             </v-row>
           </v-card-text>
           <v-card-actions class="mt-4">
-            <v-btn @click="openCheckoutDialog" color="teal" variant="elevated" block>
+            <v-btn color="teal" variant="elevated" block>
               Proceed to Checkout
             </v-btn>
           </v-card-actions>
@@ -57,13 +57,11 @@
       </v-col>
     </v-row>
   </v-container>
-  <CheckoutDialog :isOpen="dialogOpen" @close="closeDialog" />
 </template>
 
 <script setup>
 import { useCartStore } from '@/store/cartStore';
 import { ref, computed } from 'vue';
-import CheckoutDialog from '../components/CheckoutDialog.vue';
 
 const cartStore = useCartStore();
 
@@ -71,14 +69,6 @@ const cartItems = computed(() => cartStore.items);
 const totalItems = computed(() => cartStore.totalItems);
 const totalPrice = computed(() => cartStore.totalPrice);
 
-const dialogOpen = ref(false);  
-
-const openCheckoutDialog = () => {
-  dialogOpen.value = true;
-};
-const closeDialog = () => {
-  dialogOpen.value = false;
-};
 
 const removeFromCart = (id) => {
   cartStore.removeFromCart(id);
@@ -114,7 +104,8 @@ const decreaseQuantity = (item) => {
 .v-list-item:last-child {
   border-bottom: none;
 }
-.v-container{
+
+.v-container {
   max-width: 1200px;
 }
 </style>

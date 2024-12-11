@@ -15,8 +15,8 @@ export const useProductStore = defineStore('productStore', {
     async fetchData() {
       if (this.products.length === 0) {
         try {
-          const SHOPIFY_API_URL = 'https://vue-storefront-api.myshopify.com/api/2024-07/graphql.json';
-          const SHOPIFY_API_TOKEN = "2361c98e6ec9889df7bab8ba073056f0";
+          const SHOPIFY_API_URL = 'https://code-with-chiranjit.myshopify.com/api/2024-07/graphql.json';
+          const SHOPIFY_API_TOKEN = "ca6b137e6fa0f0f5b68b3eb3c01d6d4b";
           
           const shopifyClient = axios.create({
             baseURL: SHOPIFY_API_URL,

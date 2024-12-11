@@ -8,7 +8,7 @@
         <v-card>
           <v-card-title>{{ product.title }}</v-card-title>
           <v-card-text>${{ product.price }}</v-card-text>
-          <v-card-subtitle>rating:{{ product.rating.rate }}</v-card-subtitle>
+          <v-card-subtitle>rating:{{ product.rating }}</v-card-subtitle>
           <v-card-text>{{ product.description }}</v-card-text>
           <v-card-actions>
             <v-btn @click="addToCart(product)" color="teal" variant="flat">Add to Cart</v-btn>
@@ -63,7 +63,7 @@ const addToCart = (product) => {
 </script>
 
 <style>
-.v-container{
+.v-container {
   max-width: fit-content;
 }
 </style>
