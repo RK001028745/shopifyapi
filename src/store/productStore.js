@@ -15,8 +15,8 @@ export const useProductStore = defineStore('productStore', {
     async fetchData() {
       if (this.products.length === 0) {
         try {
-          const SHOPIFY_API_URL = 'https://code-with-chiranjit.myshopify.com/api/2024-07/graphql.json';
-          const SHOPIFY_API_TOKEN = "ca6b137e6fa0f0f5b68b3eb3c01d6d4b";
+          const SHOPIFY_API_URL = import.meta.env.VITE_SHOPIFY_STORE_URL || 'https://code-with-chiranjit.myshopify.com/api/2024-07/graphql.json';
+          const SHOPIFY_API_TOKEN = import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN || "ca6b137e6fa0f0f5b68b3eb3c01d6d4b";
           
           const shopifyClient = axios.create({
             baseURL: SHOPIFY_API_URL,
@@ -28,22 +28,27 @@ export const useProductStore = defineStore('productStore', {
 
           const query = `
             {
-              products(first: 25) {
+              products(first: 50) {
                 edges {
                   node {
                     id
                     title
                     description
+                    productType
+                    tags
                     images(first: 1) {
                       edges {
                         node {
                           url
+                          altText
                         }
                       }
                     }
-                    variants(first: 1) {
+                    variants(first: 10) {
                       edges {
                         node {
+                          id
+                          title
                           priceV2 {
                             amount
                             currencyCode
@@ -52,9 +57,14 @@ export const useProductStore = defineStore('productStore', {
                             amount
                             currencyCode
                           }
+                          availableForSale
+                          selectedOptions {
+                            name
+                            value
+                          }
                         }
                       }
-                    }    
+                    }
                   }
                 }
               }
@@ -63,26 +73,59 @@ export const useProductStore = defineStore('productStore', {
 
           const response = await shopifyClient.post('', { query });
           const productsData = response.data.data.products.edges;
-          function generateRandomFloat(min, max) {
-            return (Math.random() * (max - min) + min).toFixed(1);
-          }
-          
-          const randomNumber = generateRandomFloat(1, 5);
-          this.products = productsData.map(edge => ({
-            id: edge.node.id.split('/').pop(),
-            title: edge.node.title,
-            description: edge.node.description,
-            image: edge.node.images.edges[0]?.node.url,
-            price: edge.node.variants.edges[0]?.node.priceV2.amount,
-            compareAtPrice: edge.node.variants.edges[0]?.node.compareAtPriceV2?.amount,
-            category: 'Shopify Category', // Shopify API does not return a category directly
-            rating : generateRandomFloat(3, 5)
-          }));
 
-          // Set unique categories (since Shopify does not provide categories in the response, set a default one)
-          this.categories = ['All', 'Shopify Category'];
+          // Helper function to generate random rating
+          function generateRandomFloat(min, max) {
+            return parseFloat((Math.random() * (max - min) + min).toFixed(1));
+          }
+
+          // Process products with more detailed information
+          this.products = productsData.map(edge => {
+            const product = edge.node;
+            const primaryVariant = product.variants.edges[0]?.node;
+
+            return {
+              id: product.id.split('/').pop(), // Shopify global ID
+              title: product.title,
+              description: product.description,
+              image: product.images.edges[0]?.node.url,
+              imageAlt: product.images.edges[0]?.node.altText,
+              
+              // First variant details
+              price: primaryVariant?.priceV2.amount,
+              compareAtPrice: primaryVariant?.compareAtPriceV2?.amount,
+              variantId: primaryVariant?.id, // Critical for checkout
+              
+              // Additional product details
+              category: product.productType || 'Uncategorized',
+              tags: product.tags,
+              availableForSale: primaryVariant?.availableForSale,
+              
+              // Optional: variant options if multiple exist
+              variants: product.variants.edges.map(variantEdge => ({
+                id: variantEdge.node.id,
+                title: variantEdge.node.title,
+                price: variantEdge.node.priceV2.amount,
+                availableForSale: variantEdge.node.availableForSale,
+                options: variantEdge.node.selectedOptions
+              })),
+              
+              // Random rating for display purposes
+              rating: generateRandomFloat(3, 5)
+            };
+          });
+
+          // Generate unique categories
+          this.categories = ['All', ...new Set(this.products.map(p => p.category))];
+          console.log('Products fetched:', this.products);
+          
+          const variantIds = this.products.flatMap(product => 
+            product.variants.map(variant => variant.id)
+          );
+          console.log('Variant IDs:', variantIds);
+
         } catch (error) {
-          console.error('Error fetching products and categories from Shopify API:', error);
+          console.error('Error fetching products from Shopify API:', error);
           throw error;
         }
       }

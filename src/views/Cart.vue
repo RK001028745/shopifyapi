@@ -10,7 +10,7 @@
       <v-col cols="12" md="8">
         <v-card variant="outlined" class="pa-4">
           <v-list>
-            <v-list-item v-for="item in cartItems" :key="item.id" class="mb-4">
+            <v-list-item v-for="item in cartItems" :key="item.variantId" class="mb-4">
               <template v-slot:prepend>
                 <v-img :src="item.image" height="80px" width="80px" cover class="rounded mr-4"></v-img>
               </template>
@@ -26,7 +26,7 @@
                   <v-btn icon @click="increaseQuantity(item)" class="mx-2" size="small">
                     <v-icon>mdi-plus</v-icon>
                   </v-btn>
-                  <v-btn icon @click="removeFromCart(item.id)" class="ml-2" color="error" size="small">
+                  <v-btn icon @click="removeFromCart(item.variantId)" class="ml-2" color="error" size="small">
                     <v-icon>mdi-delete</v-icon>
                   </v-btn>
                 </v-row>
@@ -49,8 +49,8 @@
             </v-row>
           </v-card-text>
           <v-card-actions class="mt-4">
-            <v-btn color="teal" variant="elevated" block>
-              Proceed to Checkout
+            <v-btn color="primary" variant="elevated" block @click="proceedToCheckout">
+              Checkout
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -61,7 +61,12 @@
 
 <script setup>
 import { useCartStore } from '@/store/cartStore';
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
+import Client from 'shopify-buy';
+const client2 = Client.buildClient({
+  domain: 'code-with-chiranjit.myshopify.com',
+  storefrontAccessToken: 'ca6b137e6fa0f0f5b68b3eb3c01d6d4b'
+});
 
 const cartStore = useCartStore();
 
@@ -69,19 +74,40 @@ const cartItems = computed(() => cartStore.items);
 const totalItems = computed(() => cartStore.totalItems);
 const totalPrice = computed(() => cartStore.totalPrice);
 
-
-const removeFromCart = (id) => {
-  cartStore.removeFromCart(id);
+const removeFromCart = (variantId) => {
+  cartStore.removeFromCart(variantId);
 };
 
 const increaseQuantity = (item) => {
-  cartStore.updateQuantity(item.id, item.quantity + 1);
+  cartStore.updateQuantity(item.variantId, item.quantity + 1);
 };
 
 const decreaseQuantity = (item) => {
   if (item.quantity > 1) {
-    cartStore.updateQuantity(item.id, item.quantity - 1);
+    cartStore.updateQuantity(item.variantId, item.quantity - 1);
   }
+};
+
+// Log product IDs and variant IDs of products in the cart
+const productVariantIds = cartItems.value.map(item => ({
+  productId: item.id,
+  variantId: item.variantId
+}));
+console.log('Product and Variant IDs in cart:', productVariantIds);
+
+const proceedToCheckout = () => {
+  client2.checkout.create().then((checkout) => {
+    // Add the product to the checkout
+    const lineItems = cartItems.value.map(item => ({
+      variantId: item.variantId,
+      quantity: item.quantity
+    }));
+
+    client2.checkout.addLineItems(checkout.id, lineItems).then((checkout) => {
+      // Redirect to the checkout URL
+      window.open(checkout.webUrl, '_blank');
+    });
+  });
 };
 </script>
 
@@ -103,9 +129,5 @@ const decreaseQuantity = (item) => {
 
 .v-list-item:last-child {
   border-bottom: none;
-}
-
-.v-container {
-  max-width: 1200px;
 }
 </style>

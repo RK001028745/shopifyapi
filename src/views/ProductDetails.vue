@@ -11,7 +11,7 @@
           <v-card-subtitle>rating:{{ product.rating }}</v-card-subtitle>
           <v-card-text>{{ product.description }}</v-card-text>
           <v-card-actions>
-            <v-btn @click="addToCart(product)" color="teal" variant="flat">Add to Cart</v-btn>
+            <v-btn @click="addToCart(product)" color="primary" variant="flat">Add to Cart</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>

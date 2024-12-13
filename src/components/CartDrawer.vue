@@ -36,7 +36,7 @@
 
                                         <!-- Scrollable Content -->
                                         <div class="flex-1 overflow-y-auto py-6 px-4 sm:px-6">
-                                            <div v-for="item in cartItems" :key="item.id"
+                                            <div v-for="item in cartItems" :key="item.variantId"
                                                 class="flex flex-col py-6 border-b border-black-200">
                                                 <div class="flex items-center mb-1">
                                                     <img :src="item.image" alt="Product"
@@ -58,7 +58,7 @@
                                                                     </button>
                                                                     <span class="px-2 py-1 text-gray-700">{{
                                                                         item.quantity
-                                                                        }}</span>
+                                                                    }}</span>
                                                                     <button @click="increaseQuantity(item)"
                                                                         class="p-2 text-gray-500 hover:text-gray-700">
                                                                         <PlusIcon class="h-4 w-4" />
@@ -66,7 +66,7 @@
                                                                 </div>
                                                                 <!-- Remove button box -->
                                                                 <div class="border border-gray-200 rounded-md">
-                                                                    <button @click="removeFromCart(item.id)"
+                                                                    <button @click="removeFromCart(item.variantId)"
                                                                         class="p-2 text-sm font-medium text-indigo-600 hover:text-indigo-500">
                                                                         Remove
                                                                     </button>
@@ -129,19 +129,19 @@ const closeDrawer = () => {
     emit('update:isOpen', false)
 }
 
-const removeFromCart = (id) => {
-    cartStore.removeFromCart(id)
-}
+const removeFromCart = (variantId) => {
+    cartStore.removeFromCart(variantId);
+};
 
 const increaseQuantity = (item) => {
-    cartStore.updateQuantity(item.id, item.quantity + 1)
-}
+    cartStore.updateQuantity(item.variantId, item.quantity + 1);
+};
 
 const decreaseQuantity = (item) => {
     if (item.quantity > 1) {
-        cartStore.updateQuantity(item.id, item.quantity - 1)
+        cartStore.updateQuantity(item.variantId, item.quantity - 1);
     }
-}
+};
 
 const viewBag = () => {
     router.push('/cart')
